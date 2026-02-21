@@ -1,11 +1,12 @@
 import random
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-import os
-
+# Get token from Railway Variables
 TOKEN = os.getenv("TOKEN")
 
+# Random lists
 moods = ["Happy 😄", "Sad 😢", "Angry 😡", "Sleepy 😴", "Focused 😎"]
 works = ["Student 📚", "Gamer 🎮", "Shopkeeper 🏪", "Coder 💻", "Dreamer 🌙"]
 
@@ -19,6 +20,7 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     premium_status = "Premium 💎" if user.is_premium else "Basic 👤"
 
+    # Get profile photo
     photos = await context.bot.get_user_profile_photos(user.id)
     photo = photos.photos[0][0].file_id if photos.total_count > 0 else None
 
@@ -56,7 +58,13 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text(text, reply_markup=reply_markup)
 
-app = ApplicationBuilder().token(TOKEN).build()
-app.add_handler(CommandHandler("profile", profile))
 
-app.run_polling()
+if __name__ == "__main__":
+    if not TOKEN:
+        raise ValueError("TOKEN not found! Add it in Railway Variables.")
+
+    app = ApplicationBuilder().token(TOKEN).build()
+    app.add_handler(CommandHandler("profile", profile))
+
+    print("Bot started successfully...")
+    app.run_polling()
